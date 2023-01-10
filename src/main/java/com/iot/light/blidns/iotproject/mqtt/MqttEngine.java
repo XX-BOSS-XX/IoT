@@ -1,45 +1,55 @@
 package com.iot.light.blidns.iotproject.mqtt;
 
-import org.eclipse.paho.client.mqttv3.MqttClient;
-import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
-import org.eclipse.paho.client.mqttv3.MqttException;
-import org.eclipse.paho.client.mqttv3.MqttMessage;
-import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
+import com.hivemq.client.mqtt.MqttClient;
+import com.hivemq.client.mqtt.mqtt5.Mqtt5BlockingClient;
+
+import static com.hivemq.client.mqtt.MqttGlobalPublishFilter.ALL;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class MqttEngine {
     public static void main(String[] args) {
 
-        String broker = "tcp://broker.mqttdashboard.com:8000";
-        String topic = "mqtt-iot";
-        String username = "mqtt-iot";
-        String password = "qwerty1234";
-        String clientid = "clientId-UyBS0sDniP";
-        String content = "Hello MQTT";
-        int qos = 2;
+        final String host = "15e27783f61d43cdb43210b50caf5683.s1.eu.hivemq.cloud";
+        final String username = "admin";
+        final String password = "adminadmin";
 
-        try {
-            MqttClient client = new MqttClient(broker, clientid, new MemoryPersistence());
-            MqttConnectOptions options = new MqttConnectOptions();
-            options.setUserName(username);
-            options.setPassword(password.toCharArray());
-            options.setConnectionTimeout(60);
-            options.setKeepAliveInterval(60);
-            // connect
-            client.connect(options);
-            // create message and setup QoS
-            MqttMessage message = new MqttMessage(content.getBytes());
-            message.setQos(qos);
-            // publish message
-            client.publish(topic, message);
-            System.out.println("Message published");
-            System.out.println("topic: " + topic);
-            System.out.println("message content: " + content);
-            // disconnect
+        // create an MQTT client
+        final Mqtt5BlockingClient client = MqttClient.builder()
+                .useMqttVersion5()
+                .serverHost(host)
+                .serverPort(8883)
+                .sslWithDefaultConfig()
+                .buildBlocking();
+
+        // connect to HiveMQ Cloud with TLS and username/pw
+        client.connectWith()
+                .simpleAuth()
+                .username(username)
+                .password(UTF_8.encode(password))
+                .applySimpleAuth()
+                .send();
+
+        System.out.println("Connected successfully");
+
+        // subscribe to the topic "my/test/topic"
+        client.subscribeWith()
+                .topicFilter("my/test/topic")
+                .send();
+
+        // set a callback that is called when a message is received (using the async API style)
+        client.toAsync().publishes(ALL, publish -> {
+            System.out.println("Received message: " +
+                    publish.getTopic() + " -> " +
+                    UTF_8.decode(publish.getPayload().get()));
+
+            // disconnect the client after a message was received
             client.disconnect();
-            // close client
-            client.close();
-        } catch (MqttException e) {
-            throw new RuntimeException(e);
-        }
+        });
+
+        // publish a message to the topic "my/test/topic"
+        client.publishWith()
+                .topic("my/test/topic")
+                .payload(UTF_8.encode("Hello"))
+                .send();
     }
 }
