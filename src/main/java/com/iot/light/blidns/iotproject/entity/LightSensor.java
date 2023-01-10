@@ -12,14 +12,11 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class Light {
+public class LightSensor {
     @Id
     @GeneratedValue(
             strategy = GenerationType.IDENTITY
     )
     private Long id;
-    private Long roomId;
-    private boolean on;
-    private int light;
-    private Integer lightSensorMeter;
+    private Integer lightMeter;
 }

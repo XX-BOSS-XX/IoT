@@ -20,4 +20,5 @@ public class Blind {
     private Long id;
     private Long roomId;
     private boolean open;
+    private Integer lightSensorMeter;
 }
