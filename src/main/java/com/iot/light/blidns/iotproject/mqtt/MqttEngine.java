@@ -43,7 +43,6 @@ public class MqttEngine {
                     UTF_8.decode(publish.getPayload().get()));
 
             // disconnect the client after a message was received
-            client.disconnect();
         });
 
         // publish a message to the topic "my/test/topic"
