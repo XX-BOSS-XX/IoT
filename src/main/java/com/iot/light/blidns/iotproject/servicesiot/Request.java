@@ -1,4 +1,4 @@
-package com.iot.light.blidns.iotproject.services;
+package com.iot.light.blidns.iotproject.servicesiot;
 
 import lombok.Getter;
 import lombok.Setter;

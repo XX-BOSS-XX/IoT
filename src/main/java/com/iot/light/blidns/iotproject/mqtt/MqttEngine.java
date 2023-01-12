@@ -2,18 +2,20 @@ package com.iot.light.blidns.iotproject.mqtt;
 
 import com.hivemq.client.mqtt.MqttClient;
 import com.hivemq.client.mqtt.mqtt5.Mqtt5BlockingClient;
+import org.springframework.stereotype.Component;
 
 import static com.hivemq.client.mqtt.MqttGlobalPublishFilter.ALL;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
+@Component
 public class MqttEngine {
-    public static void main(String[] args) {
+//    public static void main(String[] args) {
 
-        final String host = "15e27783f61d43cdb43210b50caf5683.s1.eu.hivemq.cloud";
-        final String username = "admin";
-        final String password = "adminadmin";
+        final String host = "15760f3aa1d047f487194f9bc00d327a.s2.eu.hivemq.cloud";
+        final String username = "mqtt-iot";
+        final String password = "qwerty12345";
 
-        // create an MQTT client
+        public void receiveMessage() {
         final Mqtt5BlockingClient client = MqttClient.builder()
                 .useMqttVersion5()
                 .serverHost(host)
@@ -48,7 +50,16 @@ public class MqttEngine {
         // publish a message to the topic "my/test/topic"
         client.publishWith()
                 .topic("my/test/topic")
-                .payload(UTF_8.encode("Hello"))
+                .payload(UTF_8.encode("40"))
                 .send();
+
+        client.toAsync().publishes(ALL, publish -> {
+            String message = String.valueOf(UTF_8.decode(publish.getPayload().get()));
+            System.out.println(message);
+        });
+    }
+
+    public String getMessage() {
+        return "35";
     }
 }

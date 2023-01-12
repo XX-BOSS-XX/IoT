@@ -19,7 +19,6 @@ public class Light {
     )
     private Long id;
     private Long roomId;
-    private boolean on;
-    private int light;
+    private Integer lightPower;
     private Integer lightSensorMeter;
 }
