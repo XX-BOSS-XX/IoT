@@ -2,64 +2,80 @@ package com.iot.light.blidns.iotproject.mqtt;
 
 import com.hivemq.client.mqtt.MqttClient;
 import com.hivemq.client.mqtt.mqtt5.Mqtt5BlockingClient;
+import com.iot.light.blidns.iotproject.services.BlindsLightService;
+import com.iot.light.blidns.iotproject.services.SensorService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.apache.commons.lang3.math.NumberUtils;
 
 import static com.hivemq.client.mqtt.MqttGlobalPublishFilter.ALL;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 @Component
 public class MqttEngine {
-//    public static void main(String[] args) {
+    private static final String HOST = "15e27783f61d43cdb43210b50caf5683.s1.eu.hivemq.cloud";
+    private static final String USERNAME = "admin";
+    private static final String PASSWORD = "adminadmin";
 
-        final String host = "15760f3aa1d047f487194f9bc00d327a.s2.eu.hivemq.cloud";
-        final String username = "mqtt-iot";
-        final String password = "qwerty12345";
 
-        public void receiveMessage() {
-        final Mqtt5BlockingClient client = MqttClient.builder()
-                .useMqttVersion5()
-                .serverHost(host)
-                .serverPort(8883)
-                .sslWithDefaultConfig()
-                .buildBlocking();
+    @Autowired
+    private SensorService sensorService;
+    @Autowired
+    private BlindsLightService blindsLightService;
 
-        // connect to HiveMQ Cloud with TLS and username/pw
-        client.connectWith()
-                .simpleAuth()
-                .username(username)
-                .password(UTF_8.encode(password))
-                .applySimpleAuth()
-                .send();
+    private final Mqtt5BlockingClient client;
 
-        System.out.println("Connected successfully");
+    public MqttEngine() {
+        try {
+            client = MqttClient.builder()
+                    .automaticReconnect().applyAutomaticReconnect()
+                    .useMqttVersion5()
+                    .serverHost(HOST)
+                    .serverPort(8883)
+                    .sslWithDefaultConfig()
+                    .buildBlocking();
 
-        // subscribe to the topic "my/test/topic"
+            // connect to HiveMQ Cloud with TLS and username/pw
+            client.connectWith()
+                    .simpleAuth()
+                    .username(USERNAME)
+                    .password(UTF_8.encode(PASSWORD))
+                    .applySimpleAuth()
+                    .send();
+
+            System.out.println("Connected successfully");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void receive(String topic) {
+        // subscribe to the topic
         client.subscribeWith()
-                .topicFilter("my/test/topic")
+                .topicFilter(topic)
                 .send();
 
         // set a callback that is called when a message is received (using the async API style)
-        client.toAsync().publishes(ALL, publish -> {
-            System.out.println("Received message: " +
-                    publish.getTopic() + " -> " +
-                    UTF_8.decode(publish.getPayload().get()));
+        client.toAsync().publishes(ALL, mqtt5Publish -> {
+            var decode = UTF_8.decode(mqtt5Publish.getPayload().get()).toString();
+            System.out.println(decode);
+            var sensorId = 1L;
 
-            // disconnect the client after a message was received
-        });
-
-        // publish a message to the topic "my/test/topic"
-        client.publishWith()
-                .topic("my/test/topic")
-                .payload(UTF_8.encode("40"))
-                .send();
-
-        client.toAsync().publishes(ALL, publish -> {
-            String message = String.valueOf(UTF_8.decode(publish.getPayload().get()));
-            System.out.println(message);
+            if (NumberUtils.isCreatable(decode)) {
+                sensorService.setLight(sensorId, Integer.parseInt(decode));
+                blindsLightService.roomLogic(sensorId);
+            }
         });
     }
 
-    public String getMessage() {
-        return "35";
+    public void publish(String topic, String message) {
+        client.subscribeWith()
+                .topicFilter(topic)
+                .send();
+
+        client.publishWith()
+                .topic(topic)
+                .payload(UTF_8.encode(message))
+                .send();
     }
 }

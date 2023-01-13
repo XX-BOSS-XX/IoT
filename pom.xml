@@ -87,6 +87,18 @@
 		</dependency>
 
 		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>3.12.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.glassfish.tyrus</groupId>
+			<artifactId>tyrus-container-jdk-client</artifactId>
+			<version>1.17</version>
+		</dependency>
+
+		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt-jackson</artifactId>
 			<version>0.11.5</version>
@@ -121,9 +133,14 @@
 			<artifactId>java-jwt</artifactId>
 			<version>4.2.1</version>
 		</dependency>
+        <dependency>
+            <groupId>org.apache.tomcat.embed</groupId>
+            <artifactId>tomcat-embed-websocket</artifactId>
+            <version>9.0.68</version>
+        </dependency>
 
 
-	</dependencies>
+    </dependencies>
 
 	<build>
 		<plugins>

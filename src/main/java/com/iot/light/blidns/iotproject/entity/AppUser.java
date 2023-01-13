@@ -6,15 +6,17 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 @Data
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Entity
 public class AppUser implements UserDetails{
+
     @Id
     @GeneratedValue
     private Integer id;
@@ -33,7 +35,10 @@ public class AppUser implements UserDetails{
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(role.name()));
+        List<GrantedAuthority> list = new ArrayList<GrantedAuthority>();
+
+        list.add(new SimpleGrantedAuthority("ROLE_" + role));
+        return list;
     }
 
     @Override

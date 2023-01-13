@@ -1,6 +1,9 @@
 package com.iot.light.blidns.iotproject.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -11,19 +14,13 @@ import lombok.ToString;
 @Setter
 @ToString
 @NoArgsConstructor
-public class Light {
+public class Sensor {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
-  private Integer address;
-  private Integer lightLevel;
-  @ManyToOne
-  @JoinColumn
-  private Sensor sensor;
+  private Integer lightValue;
 
-  public Light(Integer address, Sensor sensor) {
-    this.address = address;
-    this.lightLevel = 0;
-    this.sensor = sensor;
+  public Sensor(Integer lightValue) {
+    this.lightValue = lightValue;
   }
 }

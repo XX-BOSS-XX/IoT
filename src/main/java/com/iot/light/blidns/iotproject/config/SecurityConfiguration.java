@@ -25,6 +25,8 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests()
                 .requestMatchers("/api/v1/auth/**")
                 .permitAll()
+//                .requestMatchers("/").hasAuthority("USER")
+//                .requestMatchers("/admin").hasAuthority("ADMIN")
                 .anyRequest()
                 .authenticated()
                 .and()
